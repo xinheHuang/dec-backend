@@ -23,6 +23,22 @@ const getAllArticles = { //获取最近七天的文章
     }
 }
 
+const getArticlesByIndustry = { //获取最近七天的文章
+    method: 'get',
+    url: '/market/industry/:industry/articles',
+    async handler(ctx, next) {
+        const { industry } = ctx.params
+        const articles = await Article.findAll({
+            where: {
+                industry
+            }
+        })
+
+        ctx.body = articles
+    }
+}
+
+
 const getConclusion = { //获取最新的结论
     method: 'get',
     url: '/market/conclusion',
@@ -69,6 +85,6 @@ const getSubCategories = { //获取一级行业
 }
 
 
-const apis = [getAllArticles, getConclusion, getCategories, getSubCategories]
+const apis = [getAllArticles, getArticlesByIndustry,getConclusion, getCategories, getSubCategories]
 
 module.exports = apis
