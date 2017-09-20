@@ -4,7 +4,14 @@
 const Article = require('../models/article')
 const Conclusion = require('../models/conclusion')
 const Category = require('../models/category')
-
+const Recommend = require('../models/Recommend')
+const People= require('../models/People')
+Article.hasMany(Recommend,{
+    foreignKey:'YID'
+})
+Recommend.belongsTo(Article,{
+    foreignKey: 'YID'
+})
 const getAllArticles = { //获取最近七天的文章
     method: 'get',
     url: '/market/articles',
@@ -23,7 +30,7 @@ const getAllArticles = { //获取最近七天的文章
     }
 }
 
-const getArticlesByIndustry = { //获取最近七天的文章
+const getArticlesByIndustry = { //获取推荐文章
     method: 'get',
     url: '/market/industry/:industry/articles',
     async handler(ctx, next) {
@@ -31,10 +38,28 @@ const getArticlesByIndustry = { //获取最近七天的文章
         const articles = await Article.findAll({
             where: {
                 industry
+            },
+             include: {
+                model: Recommend,
             }
         })
 
         ctx.body = articles
+    }
+}
+
+const getPeopleByIndustry = { //获取people
+    method: 'get',
+    url: '/market/industry/:industry/people',
+    async handler(ctx, next) {
+        const { industry } = ctx.params
+        const people = await People.findAll({
+            where: {
+                industry
+            },
+        })
+
+        ctx.body = people
     }
 }
 
@@ -85,6 +110,6 @@ const getSubCategories = { //获取一级行业
 }
 
 
-const apis = [getAllArticles, getArticlesByIndustry,getConclusion, getCategories, getSubCategories]
+const apis = [getAllArticles, getArticlesByIndustry,getPeopleByIndustry,getConclusion, getCategories, getSubCategories]
 
 module.exports = apis

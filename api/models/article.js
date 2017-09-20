@@ -4,7 +4,7 @@
 const database = require('../../conf/database')
 
 const Article = database.define('article', {
-    ID: { type: 'INTEGER', primaryKey: true },
+    YID: { type: 'INTEGER', primaryKey: true },
     title: { type: 'TEXT', allowNull: false },
     author: { type: 'TEXT', allowNull: false },
     content: { type: 'LONGTEXT', allowNull: false },
