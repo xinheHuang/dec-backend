@@ -41,7 +41,10 @@ const getArticlesByIndustry = { //获取推荐文章
             },
              include: {
                 model: Recommend,
-            }
+            },
+            order: [
+                ['riqi', 'DESC'],
+            ]
         })
 
         ctx.body = articles
