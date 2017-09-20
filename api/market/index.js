@@ -4,8 +4,8 @@
 const Article = require('../models/article')
 const Conclusion = require('../models/conclusion')
 const Category = require('../models/category')
-const Recommend = require('../models/Recommend')
-const People= require('../models/People')
+const Recommend = require('../models/recommend')
+const People= require('../models/people')
 Article.hasMany(Recommend,{
     foreignKey:'YID'
 })
