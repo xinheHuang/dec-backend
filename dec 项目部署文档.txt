@@ -1,0 +1,19 @@
+dec 项目部署文档
+1. ssh到服务器
+2. 安装node （已经安装）
+	curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+	sudo apt-get install -y nodejs
+	sudo apt-get install -y build-essential
+3.将dec文件夹中内容上传到~www/dec目录下
+4.安装依赖 
+	sudo npm install
+5.安装pm2 （已经安装）
+	sudo npm install pm2@latest -g
+6.启动服务器
+	pm2 start bin/www
+
+
+
+
+* 如果npm install 命令下载慢，可换成cnpm install
+* 服务器配置在 bin/www 中，数据库配置在 conf/dbConfig.js中
