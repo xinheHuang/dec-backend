@@ -1,30 +1,40 @@
 /**
  * Created by Xinhe on 2017-09-20.
  */
-const Sequelize = require('sequelize')
-const Article = require('../models/article')
-const Conclusion = require('../models/conclusion')
-const Category = require('../models/category')
-const Recommend = require('../models/recommend')
-const People = require('../models/people')
-const Relation = require('../models/relation')
-Article.hasMany(Recommend, {
+ const Sequelize = require('sequelize')
+ const Article = require('../models/article')
+ const Conclusion = require('../models/conclusion')
+ const Category = require('../models/category')
+ const Recommend = require('../models/recommend')
+ const People = require('../models/people')
+ const Relation = require('../models/relation')
+ Article.hasMany(Recommend, {
     foreignKey: 'YID'
 })
 
-Recommend.belongsTo(Article, {
+ Recommend.belongsTo(Article, {
     foreignKey: 'YID'
 })
 
-Relation.hasMany(Article, {
+ Relation.hasMany(Article, {
     foreignKey:'topic'
+
 })
 
-Article.belongsTo(Relation, {
+ Relation.hasMany(Recommend, {
+    foreignKey:'code'
+})
+
+  Recommend.belongsTo(Relation, {
+    foreignKey: 'code'
+})
+
+
+ Article.belongsTo(Relation, {
     foreignKey: 'topic'
 })
 
-const apis = {
+ const apis = {
     getAllArticles: { //获取最近七天的文章
         method: 'get',
         url: '/market/articles',
@@ -32,13 +42,16 @@ const apis = {
             const last7Day = new Date()
             last7Day.setDate(new Date().getDate() - 7) //七天之内
             const articles = await Article.findAll(
-                {
-                    where: {
-                        riqi: {
-                            $gt: last7Day
-                        }
+            {
+                where: {
+                    riqi: {
+                        $gt: last7Day
                     }
-                })
+                },
+                include: {
+                    model: Relation,
+                },
+            })
 
             ctx.body = articles
         }
@@ -50,17 +63,21 @@ const apis = {
         async handler(ctx, next) {
             const {industry} = ctx.params
             const articles = await Article.findAll(
-                {
-                    where: {
-                        industry
-                    },
-                    include: {
-                        model: Recommend,
-                    },
-                    order: [
-                        ['riqi', 'DESC'],
-                    ]
-                })
+            {
+                where: {
+                    industry
+                },
+                include: [{
+                    model: Recommend,
+                    include: [{
+                    model: Relation,
+                    
+                }],
+                }],
+                order: [
+                ['riqi', 'DESC'],
+                ]
+            })
 
             ctx.body = articles
         }
@@ -72,11 +89,11 @@ const apis = {
         async handler(ctx, next) {
             const {industry} = ctx.params
             const people = await People.findAll(
-                {
-                    where: {
-                        industry
-                    },
-                })
+            {
+                where: {
+                    industry
+                },
+            })
 
             ctx.body = people
         }
@@ -88,13 +105,13 @@ const apis = {
         url: '/market/conclusion',
         async handler(ctx, next) {
             const formatContent = (s) => s.split(new RegExp('[\r\n]'))
-                                          .filter(d => d)
+            .filter(d => d)
             const conclusion = await Conclusion.findOne(
-                {
-                    order: [
-                        ['riqi', 'DESC'],
-                    ]
-                })
+            {
+                order: [
+                ['riqi', 'DESC'],
+                ]
+            })
             conclusion.content1 = formatContent(conclusion.content1)
             conclusion.content2 = formatContent(conclusion.content2)
             ctx.body = conclusion
@@ -107,11 +124,11 @@ const apis = {
         url: '/market/categories',
         async handler(ctx, next) {
             const categories = await Category.findAll(
-                {
-                    where: {
-                        FCID: 0
-                    }
-                })
+            {
+                where: {
+                    FCID: 0
+                }
+            })
             ctx.body = categories
         }
     }
@@ -123,17 +140,17 @@ const apis = {
         async handler(ctx, next) {
             const {cid} = ctx.params
             const categories = await Category.findAll(
-                {
-                    where: {
-                        FCID: cid
-                    }
-                })
+            {
+                where: {
+                    FCID: cid
+                }
+            })
             ctx.body = categories
         }
     },
     getTotalReadNumbersLast7Days: {
         method: 'get',
-        url: '/market/readNumbers',
+        url: '/market/readNumbersLast7Days',
         async handler(ctx, next) {
             const last7Day = new Date()
             last7Day.setDate(new Date().getDate() - 7) //七天之内
@@ -147,28 +164,20 @@ const apis = {
                 include: {
                     model: Relation,
                 },
-                 group: 'topic'
+                group: 'topic'
             })
             ctx.body = articles
         }
     },
-    getTotalReadNumbers: {
+    getArticleRelations: {
         method: 'get',
-        url: '/market/readNumbers',
+        url: '/market/articleRelations',
         async handler(ctx, next) {
-            const last7Day = new Date()
-            last7Day.setDate(new Date().getDate() - 7) //七天之内
-            const articles = await  Article.sum('num_read', {
+            const articles = await  Article.findAll({
                 plain:false,
-                where: {
-                    riqi: {
-                        $gt: last7Day
-                    }
-                },
                 include: {
                     model: Relation,
                 },
-                 group: 'topic'
             })
             ctx.body = articles
         }

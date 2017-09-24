@@ -12,7 +12,7 @@ const Article = database.define('article', {
     num_like: { type: 'INTEGER', allowNull: false },
     riqi: { type: 'DATE', allowNull: false },
     industry: { type: 'TEXT', allowNull: false },
-    company: { type: 'TEXT', allowNull: false },
+    broker: { type: 'TEXT', allowNull: false },
     topic: { type: 'TEXT', allowNull: false },
 })
 module.exports = Article
