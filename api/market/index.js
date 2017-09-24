@@ -130,8 +130,28 @@ const apis = {
                 })
             ctx.body = categories
         }
-    }
-    ,
+    },
+    getTotalReadNumbersLast7Days: {
+        method: 'get',
+        url: '/market/readNumbers',
+        async handler(ctx, next) {
+            const last7Day = new Date()
+            last7Day.setDate(new Date().getDate() - 7) //七天之内
+            const articles = await  Article.sum('num_read', {
+                plain:false,
+                where: {
+                    riqi: {
+                        $gt: last7Day
+                    }
+                },
+                include: {
+                    model: Relation,
+                },
+                 group: 'topic'
+            })
+            ctx.body = articles
+        }
+    },
     getTotalReadNumbers: {
         method: 'get',
         url: '/market/readNumbers',
