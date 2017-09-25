@@ -2,11 +2,11 @@
  * Created by Xinhe on 2017-09-20.
  * 数据库实例初始化
  */
-const config = require('./dbConfig')
+const config = require('../../../../conf/dbConfig')
 const Sequelize = require('sequelize')
 
-const { database, username, password, host, port } = config
-const sequelize = new Sequelize(database, username, password, {
+const {  username, password, host, port } = config
+const sequelize = new Sequelize('calendar', username, password, {
     host,
     port,
     dialect: 'mysql',

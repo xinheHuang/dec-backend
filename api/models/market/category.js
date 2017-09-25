@@ -1,7 +1,7 @@
 /**
  * Created by Xinhe on 2017-09-20.
  */
-const database = require('../../conf/database')
+const database = require('./db')
 
 const Category = database.define('category', {
     CID: { type: 'INTEGER', primaryKey: true },

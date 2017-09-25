@@ -2,12 +2,12 @@
  * Created by Xinhe on 2017-09-20.
  */
  const Sequelize = require('sequelize')
- const Article = require('../models/article')
- const Conclusion = require('../models/conclusion')
- const Category = require('../models/category')
- const Recommend = require('../models/recommend')
- const People = require('../models/people')
- const Relation = require('../models/relation')
+ const Article = require('../models/market/article')
+ const Conclusion = require('../models/market/conclusion')
+ const Category = require('../models/market/category')
+ const Recommend = require('../models/market/recommend')
+ const People = require('../models/market/people')
+ const Relation = require('../models/market/relation')
  Article.hasMany(Recommend, {
     foreignKey: 'YID'
 })
