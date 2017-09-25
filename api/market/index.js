@@ -159,6 +159,9 @@
                 where: {
                     riqi: {
                         $gt: last7Day
+                    },
+                    topic:{
+                        $and: [{'$ne':''},{'$ne':null}]
                     }
                 },
                 include: {
@@ -175,6 +178,11 @@
         async handler(ctx, next) {
             const articles = await  Article.findAll({
                 plain:false,
+                where:{
+                    topic:{
+                        $and: [{'$ne':''},{'$ne':null}]
+                    }
+                },
                 include: {
                     model: Relation,
                 },

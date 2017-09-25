@@ -11,8 +11,8 @@ const Article = database.define('article', {
     num_read: { type: 'INTEGER', allowNull: false },
     num_like: { type: 'INTEGER', allowNull: false },
     riqi: { type: 'DATE', allowNull: false },
-    industry: { type: 'TEXT', allowNull: false },
-    broker: { type: 'TEXT', allowNull: false },
-    topic: { type: 'TEXT', allowNull: false },
+    industry: { type: 'TEXT', allowNull: true },
+    broker: { type: 'TEXT', allowNull: true },
+    topic: { type: 'TEXT', allowNull: true },
 })
 module.exports = Article
