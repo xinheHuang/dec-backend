@@ -3,7 +3,7 @@
  */
  const Sequelize = require('sequelize')
  const Calendar1 = require('../models/calendar/calendar1')
- const Calendar2 = require('../models/calendar/Calendar2')
+ const Calendar2 = require('../models/calendar/calendar2')
  
  const apis = {
     getAllCalendar1: { //获取所有canlendar1
