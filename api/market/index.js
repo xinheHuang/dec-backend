@@ -43,6 +43,7 @@
             last7Day.setDate(new Date().getDate() - 7) //七天之内
             const articles = await Article.findAll(
             {
+                attributes:['YID','industry','broker','riqi','title','topic','num_read','num_like'],
                 where: {
                     riqi: {
                         $gt: last7Day
@@ -55,8 +56,16 @@
 
             ctx.body = articles
         }
-    }
-    ,
+    },
+    getArticleById: { //获取文章
+       method: 'get',
+        url: '/market/article/:id',
+        async handler(ctx, next) {
+            const {id} = ctx.params
+            const article = await Article.findById(id)
+            ctx.body = article
+        }
+    },
     getArticlesByIndustry: { //获取推荐文章
         method: 'get',
         url: '/market/industry/:industry/articles',
@@ -64,15 +73,15 @@
             const {industry} = ctx.params
             const articles = await Article.findAll(
             {
+                attributes:['YID','industry','broker','riqi','title','topic','num_read','num_like'],
                 where: {
                     industry
                 },
                 include: [{
                     model: Recommend,
                     include: [{
-                    model: Relation,
-                    
-                }],
+                        model: Relation,
+                    }],
                 }],
                 order: [
                 ['riqi', 'DESC'],
@@ -81,8 +90,7 @@
 
             ctx.body = articles
         }
-    }
-    ,
+    },
     getPeopleByIndustry: { //获取people
         method: 'get',
         url: '/market/industry/:industry/people',
@@ -178,6 +186,7 @@
         async handler(ctx, next) {
             const articles = await  Article.findAll({
                 plain:false,
+                attributes:['YID','industry','num_read','riqi'],
                 where:{
                     topic:{
                         $and: [{'$ne':''},{'$ne':null}]
