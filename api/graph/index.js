@@ -2,26 +2,48 @@
  * Created by Xinhe on 2017-09-20.
  */
  const Sequelize = require('sequelize')
- const Calendar1 = require('../models/calendar/calendar1')
- const Calendar2 = require('../models/calendar/calendar2')
+ const Graph = require('../models/graph/graph')
+ const GraphNode = require('../models/graph/graph_node')
  
+ Graph.hasMany(GraphNode, {
+    foreignKey: 'GID'
+})
+
+ GraphNode.belongsTo(Graph, {
+    foreignKey: 'GID'
+})
+
+
  const apis = {
-    getAllCalendar1: { //获取所有canlendar1
+
+    getGraph: { //获取graph
         method: 'get',
-        url: '/calendar/calendar1',
+        url: '/graph/:GID',
         async handler(ctx, next) {
-            const calendar1s = await Calendar1.findAll()
-            ctx.body = calendar1s
+            const {GID} = ctx.params
+            const graph = await Graph.findById(GID,{
+                include: {
+                    model: GraphNode,
+                },
+            })
+            ctx.body = graph
         }
     },
-    getAllCalendar2: { //获取所有canlendar1
+
+
+    getGraphNodes: { //获取graph node
         method: 'get',
-        url: '/calendar/calendar2',
+        url: '/graph/:GID/nodes',
         async handler(ctx, next) {
-            const calendar2s = await Calendar2.findAll()
-            ctx.body = calendar2s
+            const {GID} = ctx.params
+            const nodes = await GraphNode.findAll({
+                where:{
+                    GID    
+                }
+            })
+            ctx.body = nodes
         }
-    }
+    },
 }
 
 module.exports = Object.values(apis)
