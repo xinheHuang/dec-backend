@@ -62,7 +62,10 @@ GraphComment.belongsTo(GraphNode, {
                 include: {
                     model: GraphComment,
                     offset: +from, 
-                    limit: 11
+                    limit: 11,
+                    order: [
+                        ['riqi', 'DESC'],
+                    ]
                 },
             })
             const comments=node.graph_comments
@@ -72,7 +75,7 @@ GraphComment.belongsTo(GraphNode, {
             }
         }
     },
-    postGraphNodeComment: { //获取comment 10
+    postGraphNodeComment: { //post comment
         method: 'post',
         url: '/graph/node/:NID/comment',
         async handler(ctx, next) {
