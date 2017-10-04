@@ -4,7 +4,7 @@
 const database = require('./db')
 
 const Graph = database.define('graph', {
-    GID: { type: 'INTEGER', primaryKey: true },
+    GID: { type: 'INTEGER', primaryKey: true,autoIncrement: true, },
     entity: { type: 'TEXT', allowNull: false },
     author: { type: 'TEXT', allowNull: false },
     riqi: { type: 'DATETIME', allowNull: false },
