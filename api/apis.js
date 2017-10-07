@@ -4,11 +4,13 @@
 const market = require('./market')
 const calendar = require('./calendar')
 const graph = require('./graph')
+const user = require('./user')
 
 const apis = [
     ...market,
     ...calendar,
-    ...graph
+    ...graph,
+    ...user
 ]
 
 module.exports = apis

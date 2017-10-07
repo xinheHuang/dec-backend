@@ -2,8 +2,8 @@
  * Created by Xinhe on 2017-09-20.
  */
  const Sequelize = require('sequelize')
- const Calendar1 = require('../models/calendar/calendar1')
- const Calendar2 = require('../models/calendar/calendar2')
+ const Calendar1 = require('../../models/calendar/calendar1')
+ const Calendar2 = require('../../models/calendar/calendar2')
  
  const apis = {
     getAllCalendar1: { //获取所有canlendar1
