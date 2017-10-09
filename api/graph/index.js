@@ -42,7 +42,40 @@ Indicator.belongsToMany(GraphNodeRelation, {
 
 const apis = {
 
-    getGraph: { //获取graph
+    getGraph: {
+        method: 'get',
+        url: '/graph/',
+        async handler(ctx, next) {
+            const {UID} = ctx.session.user
+            const graphs = await Graph.findAll({
+                                                   where: {
+                                                       UID
+                                                   }
+                                               })
+
+            const res=await Promise.all(
+                graphs.map(
+                    (graph) => graph.getGraph_nodes()
+                                .then((nodes) => nodes.map(({NID, title, graph_node_relation}) => {
+                                    const {GNID, FNID, direction} = graph_node_relation
+                                    return {
+                                        NID,
+                                        title,
+                                        GNID,
+                                        FNID,
+                                        direction
+                                    }
+                                }))
+                                .then(nodes => ({
+                                    ...graph.get({'plain': true}),
+                                    nodes
+                                }))
+                ))
+            ctx.body = res
+        }
+    },
+
+    getGraphById: { //获取graph
         method: 'get',
         url: '/graph/:GID',
         async handler(ctx, next) {
