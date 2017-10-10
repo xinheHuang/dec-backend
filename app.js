@@ -56,7 +56,6 @@ app.use(apis.routes(), apis.allowedMethods())
 
 app.on('error', function (err, ctx) {
     console.log(err)
-    logger.error('server error', err, ctx)
 })
 
 module.exports = app

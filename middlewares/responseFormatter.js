@@ -24,6 +24,7 @@ var url_filter = (pattern) => {
             await next();
             if (ctx.status !== 200) ctx.throw(ctx.status)
         } catch (error) {
+            console.log(error);
             if(error instanceof ApiError && reg.test(ctx.originalUrl)){
                 ctx.status = 200;
                 ctx.body = {

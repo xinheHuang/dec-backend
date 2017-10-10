@@ -11,6 +11,7 @@ const GraphNodeRelation = require('../../models/graph/graph_node_relation')
 Graph.belongsToMany(GraphNode, {
     foreignKey: 'GID',
     through: GraphNodeRelation,
+
 })
 
 GraphNode.belongsToMany(Graph, {
@@ -48,30 +49,32 @@ const apis = {
         async handler(ctx, next) {
             const {UID} = ctx.session.user
             const graphs = await Graph.findAll({
-                                                   where: {
-                                                       UID
-                                                   }
-                                               })
+                                                    where: {
+                                                        UID
+                                                    },
+                                                    include: {
+                                                        model: GraphNode,
+                                                    }
+                                                })
 
-            const res=await Promise.all(
-                graphs.map(
-                    (graph) => graph.getGraph_nodes()
-                                .then((nodes) => nodes.map(({NID, title, graph_node_relation}) => {
-                                    const {GNID, FNID, direction} = graph_node_relation
-                                    return {
-                                        NID,
-                                        title,
-                                        GNID,
-                                        FNID,
-                                        direction
-                                    }
-                                }))
-                                .then(nodes => ({
-                                    ...graph.get({'plain': true}),
-                                    nodes
-                                }))
-                ))
-            ctx.body = res
+            const res = graphs.map((graph) => ({
+                ...graph.get({'plain': true}),
+                graph_nodes: undefined,
+                nodes:
+                    graph.graph_nodes.map(({NID, title, graph_node_relation}) => {
+                        const {GNID, FNID, direction} = graph_node_relation
+                        return {
+                            NID,
+                            title,
+                            GNID,
+                            FNID,
+                            direction
+                        }
+                    })
+            }))
+            ctx.body = {
+                res,
+            }
         }
     },
 

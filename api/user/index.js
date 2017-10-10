@@ -3,11 +3,50 @@
  */
 const Sequelize = require('sequelize')
 const User = require('../../models/user/user')
+const UserInterest=require('../../models/user/user_interest')
 const ApiError = require('../../error/ApiError')
 const ApiErrorNames = require('../../error/ApiErrorNames')
 const crypto = require('../../utils/cryptoUtil')
 
+User.hasMany(UserInterest,{
+    foreignKey:'UID'
+})
+UserInterest.belongsTo(User,{
+    foreignKey:'UID'
+})
+const INTEREST_TYPE_INDUSTRY=1;
+const INTEREST_TYPE_SHARE=2;
 const apis = {
+
+    getInterests: {
+        method: 'get',
+        url: '/interests/',
+        async handler(ctx, next) {
+            const {UID} = ctx.session.user
+            const interests = await UserInterest.findAll({
+                                                   where: {
+                                                       UID
+                                                   },
+                                               })
+            const industry=[];
+            const share=[];
+            interests.forEach(interest=>{
+                switch (interest.type){
+                    case INTEREST_TYPE_INDUSTRY:
+                        industry.push(interest);
+                        break;
+                    case INTEREST_TYPE_SHARE:
+                        share.push(interest);
+                        break;
+                }
+            })
+            ctx.body = {
+                industry,
+                share,
+            }
+        }
+
+    },
 
     getUserInfo: { //获取userinfo
         method: 'get',
