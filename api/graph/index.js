@@ -105,9 +105,7 @@ const apis = {
                         }
                     })
             }))
-            ctx.body = {
-                res,
-            }
+            ctx.body = res
         }
     },
 

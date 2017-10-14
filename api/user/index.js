@@ -38,7 +38,39 @@ Stock.belongsToMany(User, {
     otherKey: 'UID'
 })
 const apis = {
+ getGraph: {
+        method: 'get',
+        url: '/graph/',
+        async handler(ctx, next) {
+            const {UID} = ctx.session.user
+            const graphs = await Graph.findAll({
+                                                   where: {
+                                                       UID
+                                                   },
+                                                   include: {
+                                                       model: GraphNode,
+                                                   }
+                                               })
 
+            const res = graphs.map((graph) => ({
+                ...graph.get({'plain': true}),
+                graph_nodes: undefined,
+                nodes:
+                    graph.graph_nodes.map(({NID, title, graph_node_relation}) => {
+                        const {GNID, FNID, direction} = graph_node_relation
+                        return {
+                            NID,
+                            title,
+                            GNID,
+                            FNID,
+                            direction
+                        }
+                    })
+            }))
+            ctx.body = res
+        }
+    },
+    
     getIndustryInterests: {
         method: 'get',
         url: '/interests/industry',
