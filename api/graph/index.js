@@ -8,6 +8,11 @@ const GraphComment = require('../../models/graph/graph_comment')
 const GraphIndicator = require('../../models/graph/graph_indicator')
 const Indicator = require('../../models/graph/indicator')
 const GraphNodeRelation = require('../../models/graph/graph_node_relation')
+
+const Stock = require('../../models/graph/base_stock')
+const Industry = require('../../models/graph/base_industry')
+
+
 Graph.belongsToMany(GraphNode, {
     foreignKey: 'GID',
     through: GraphNodeRelation,
@@ -42,6 +47,34 @@ Indicator.belongsToMany(GraphNodeRelation, {
 // })
 
 const apis = {
+    searchInterestsAndStocksByKeyWord: {
+        method: 'get',
+        url: '/interests/',
+        async handler(ctx, next) {
+            const {key} = ctx.request.query
+            const stocksPromise=Stock.findAll({
+                              where: {
+                                  code: {
+                                      '$like': `%${key}%`
+                                  }
+                              }
+                          })
+            const industryPromise=Industry.findAll({
+                                 where: {
+                                     name: {
+                                         '$like': `%${key}%`
+                                     }
+                                 }
+                             })
+            const res=await Promise.all([stocksPromise,industryPromise]).then(([stocks,industries])=>{
+                return {
+                    stocks,
+                    industries
+                }
+            })
+            ctx.body = res
+        }
+    },
 
     getGraph: {
         method: 'get',
@@ -49,13 +82,13 @@ const apis = {
         async handler(ctx, next) {
             const {UID} = ctx.session.user
             const graphs = await Graph.findAll({
-                                                    where: {
-                                                        UID
-                                                    },
-                                                    include: {
-                                                        model: GraphNode,
-                                                    }
-                                                })
+                                                   where: {
+                                                       UID
+                                                   },
+                                                   include: {
+                                                       model: GraphNode,
+                                                   }
+                                               })
 
             const res = graphs.map((graph) => ({
                 ...graph.get({'plain': true}),
