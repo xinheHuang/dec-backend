@@ -8,7 +8,11 @@ const Graph = database.define('graph', {
     entity: { type: 'TEXT', allowNull: false },
     UID: { type: 'INTEGER', allowNull: false },
     riqi: { type: 'DATETIME', allowNull: false },
-    company: { type: 'TEXT', allowNull: false },
     type: { type: 'INTEGER', allowNull: false },
+    name: { type: 'TEXT', allowNull: false },
 })
 module.exports = Graph
+module.exports.GraphTypes={
+    DRAFT:2,
+    FINAL:1,
+}

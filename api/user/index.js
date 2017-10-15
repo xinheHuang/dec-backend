@@ -3,14 +3,20 @@
  */
 const Sequelize = require('sequelize')
 const User = require('../../models/user/user')
-const UserInterestStock=require('../../models/user/user_interest_stock')
-const UserInterestIndustry=require('../../models/user/user_interest_industry')
-const Stock=require('../../models/graph/base_stock')
-const Industry=require('../../models/graph/base_industry')
+const UserInterestStock = require('../../models/user/user_interest_stock')
+const UserInterestIndustry = require('../../models/user/user_interest_industry')
+const Stock = require('../../models/graph/base_stock')
+const Industry = require('../../models/graph/base_industry')
 const ApiError = require('../../error/ApiError')
 const ApiErrorNames = require('../../error/ApiErrorNames')
+const Graph = require('../../models/graph/graph')
+const GraphTypes = Graph.GraphTypes
+const GraphNode = require('../../models/graph/graph_node')
 const crypto = require('../../utils/cryptoUtil')
+const commonUtil = require('../../utils/common')
 
+
+console.log(GraphTypes)
 User.belongsToMany(Industry, {
     foreignKey: 'UID',
     otherKey: 'CID',
@@ -38,7 +44,7 @@ Stock.belongsToMany(User, {
     otherKey: 'UID'
 })
 const apis = {
- getGraph: {
+    getGraph: {
         method: 'get',
         url: '/graph/',
         async handler(ctx, next) {
@@ -70,14 +76,74 @@ const apis = {
             ctx.body = res
         }
     },
-    
+    getDraftGraphByEntity: {
+        method: 'get',
+        url: '/graph/draft',
+        async handler(ctx, next) {
+            const {UID} = ctx.session.user
+            const {entity} = ctx.request.query
+            let [graph, created] = await Graph.findOrCreate(
+                {
+                    where: {
+                        UID,
+                        entity,
+                        type: GraphTypes.DRAFT
+                    },
+                    include: {
+                        model: GraphNode,
+                    },
+                    defaults: {
+                        riqi: new Date(),
+                        name: "草稿版本"
+                    }
+                }
+            )
+            // console.log(graph.__proto__);
+            if (created) {
+                graph = await graph
+                    .createGraph_node(
+                        {
+                            title: "root",
+                            NID: commonUtil.uuid()
+                        }, {
+                            through: {
+                                FNID: 0,
+                                direction: 'right'
+                            }
+                        })
+                    .then(() => Graph.findById(graph.GID, {
+                        include: {
+                            model: GraphNode,
+                        },
+                    }))
+                console.log(graph)
+                console.log(graph.__proto__)
+            }
+            const res = {
+                ...graph.get({'plain': true}),
+                graph_nodes: undefined,
+                nodes:
+                    graph.graph_nodes.map(({NID, title, graph_node_relation}) => {
+                        const {GNID, FNID, direction} = graph_node_relation
+                        return {
+                            NID,
+                            title,
+                            GNID,
+                            FNID,
+                            direction
+                        }
+                    })
+            }
+            ctx.body = res
+        }
+    },
     getIndustryInterests: {
         method: 'get',
         url: '/interests/industry',
         async handler(ctx, next) {
             const {UID} = ctx.session.user
             const user = await User.findById(UID)
-            ctx.body = await user.getBase_industries();
+            ctx.body = await user.getBase_industries()
         }
 
     },
@@ -87,21 +153,21 @@ const apis = {
         url: '/interests/industry',
         async handler(ctx, next) {
             const {UID} = ctx.session.user
-            const {CID}= ctx.request.body;
+            const {CID} = ctx.request.body
             const user = await User.findById(UID)
-            ctx.body = await user.addBase_industry(CID);
+            ctx.body = await user.addBase_industry(CID)
         }
 
     },
 
-    deleteIndustryInterests:{
+    deleteIndustryInterests: {
         method: 'delete',
         url: '/interests/industry',
         async handler(ctx, next) {
             const {UID} = ctx.session.user
-            const {CID}= ctx.request.body;
+            const {CID} = ctx.request.body
             const user = await User.findById(UID)
-            ctx.body = await user.removeBase_industry(CID);
+            ctx.body = await user.removeBase_industry(CID)
         }
     },
 
@@ -111,7 +177,7 @@ const apis = {
         async handler(ctx, next) {
             const {UID} = ctx.session.user
             const user = await User.findById(UID)
-            ctx.body = await user.getBase_stocks();
+            ctx.body = await user.getBase_stocks()
         }
 
     },
@@ -121,24 +187,23 @@ const apis = {
         url: '/interests/stock',
         async handler(ctx, next) {
             const {UID} = ctx.session.user
-            const {SID}= ctx.request.body;
+            const {SID} = ctx.request.body
             const user = await User.findById(UID)
-            ctx.body = await user.addBase_stock(SID);
+            ctx.body = await user.addBase_stock(SID)
         }
 
     },
 
-    deleteStockInterests:{
+    deleteStockInterests: {
         method: 'delete',
         url: '/interests/stock',
         async handler(ctx, next) {
             const {UID} = ctx.session.user
-            const {SID}= ctx.request.body;
+            const {SID} = ctx.request.body
             const user = await User.findById(UID)
-            ctx.body = await user.removeBase_stock(SID);
+            ctx.body = await user.removeBase_stock(SID)
         }
     },
-
 
 
     getUserInfo: { //获取userinfo

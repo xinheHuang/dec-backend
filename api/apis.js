@@ -7,10 +7,10 @@ const graph = require('./graph')
 const user = require('./user')
 
 const apis = [
+    ...user,
     ...market,
     ...calendar,
     ...graph,
-    ...user
 ]
 
 module.exports = apis
