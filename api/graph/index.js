@@ -60,9 +60,19 @@ const apis = {
             const { key } = ctx.request.query
             const stocksPromise = Stock.findAll({
                 where: {
-                    code: {
-                        '$like': `%${key}%`
-                    }
+                    $or: [
+                        {
+                            code: {
+                                '$like': `%${key}%`
+                            }
+                        },
+                        {
+                            name: {
+                                '$like': `%${key}%`
+                            }
+                        }
+                    ]
+
                 }
             })
             const industryPromise = Industry.findAll({

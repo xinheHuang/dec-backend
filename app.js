@@ -12,7 +12,7 @@ const responseFormatter = require('./middlewares/responseFormatter')
 const checkAuth = require('./middlewares/checkAuth')
 const apis = require('./api/routes')
 // const users = require('./routes/users')
-
+const historyFallback = require('koa2-history-api-fallback')
 
 app.keys = config.keys
 
@@ -21,6 +21,11 @@ app.keys = config.keys
 // onerror(app)
 
 // middlewares
+
+
+
+app.use(historyFallback())
+
 app.use(session(app))
 
 app.use(bodyparser({
