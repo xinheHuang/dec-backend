@@ -2,7 +2,7 @@
  * Created by Xinhe on 2017/10/7.
  */
 const ApiError = require('../error/ApiError')
-
+const BusinessError = require('../error/BusinessError')
 /**
  * 在app.use(router)之前调用
  */
@@ -18,29 +18,41 @@ var response_formatter = (ctx) => {
 var url_filter = (pattern) => {
 
     return async (ctx, next) => {
-
-        var reg = new RegExp(pattern);
+        //only for rest apis
+        var reg = new RegExp(pattern)
         try {
-            await next();
-            if (ctx.status !== 200) ctx.throw(ctx.status)
+            await next()
+            if (ctx.status !== 200) {
+                ctx.throw(ctx.status)
+            }
         } catch (error) {
-            console.log(error);
-            if(error instanceof ApiError && reg.test(ctx.originalUrl)){
-                ctx.status = 200;
-                ctx.body = {
-                    code: error.code,
-                    message: error.message
+            console.log(error)
+            if (reg.test(ctx.originalUrl)) {
+                if (error instanceof ApiError) {
+                    ctx.status = 200
+                    ctx.body = {
+                        code: error.code,
+                        message: error.message
+                    }
+                }
+                if (error instanceof BusinessError) {
+                    ctx.status = 417
+                    ctx.body = {
+                        message: error.message
+                    }
                 }
             }
+
+
             //继续抛，让外层中间件处理日志
-            throw error;
+            throw error
         }
         //通过正则的url进行格式化处理
-        if(reg.test(ctx.originalUrl)){
-            response_formatter(ctx);
+        if (reg.test(ctx.originalUrl)) {
+            response_formatter(ctx)
         }
     }
 }
 
 // module.exports = response_formatter;
-module.exports = url_filter;
+module.exports = url_filter

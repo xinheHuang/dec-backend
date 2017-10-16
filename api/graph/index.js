@@ -8,10 +8,12 @@ const GraphComment = require('../../models/graph/graph_comment')
 const GraphIndicator = require('../../models/graph/graph_indicator')
 const Indicator = require('../../models/graph/indicator')
 const GraphNodeRelation = require('../../models/graph/graph_node_relation')
+const User = require('../../models/user/user')
 
 const Stock = require('../../models/graph/base_stock')
 const Industry = require('../../models/graph/base_industry')
 
+const BusinessError = require('../../error/BusinessError')
 
 Graph.belongsToMany(GraphNode, {
     foreignKey: 'GID',
@@ -42,75 +44,81 @@ Indicator.belongsToMany(GraphNodeRelation, {
     through: GraphIndicator,
 })
 
-// GraphNodeRelation.hasMany(GraphIndicator, {
-//     foreignKey: 'GNID'
-// })
+User.hasMany(GraphComment, {
+    foreignKey: 'UID'
+})
+GraphComment.belongsTo(User, {
+    foreignKey: 'UID'
+})
+
 
 const apis = {
     searchInterestsAndStocksByKeyWord: {
         method: 'get',
         url: '/interests/',
         async handler(ctx, next) {
-            const {key} = ctx.request.query
-            const stocksPromise=Stock.findAll({
-                              where: {
-                                  code: {
-                                      '$like': `%${key}%`
-                                  }
-                              }
-                          })
-            const industryPromise=Industry.findAll({
-                                 where: {
-                                     name: {
-                                         '$like': `%${key}%`
-                                     }
-                                 }
-                             })
-            const res=await Promise.all([stocksPromise,industryPromise]).then(([stocks,industries])=>{
-                return {
-                    stocks,
-                    industries
+            const { key } = ctx.request.query
+            const stocksPromise = Stock.findAll({
+                where: {
+                    code: {
+                        '$like': `%${key}%`
+                    }
                 }
             })
+            const industryPromise = Industry.findAll({
+                where: {
+                    name: {
+                        '$like': `%${key}%`
+                    }
+                }
+            })
+            const res = await Promise.all([stocksPromise, industryPromise])
+                .then(([stocks, industries]) => {
+                    return {
+                        stocks,
+                        industries
+                    }
+                })
             ctx.body = res
         }
     },
 
-   
 
     getGraphById: { //获取graph
         method: 'get',
         url: '/graph/:GID',
         async handler(ctx, next) {
-            const {GID} = ctx.params
+            const { GID } = ctx.params
             const graph = await Graph.findById(GID)
             const nodes = await graph.getGraph_nodes()
-                                     .map(({NID, title, graph_node_relation}) => {
-                                         const {GNID, FNID, direction} = graph_node_relation
-                                         return {
-                                             NID,
-                                             title,
-                                             GNID,
-                                             FNID,
-                                             direction
-                                         }
-                                     })
+                .map(({ NID, title, graph_node_relation }) => {
+                    const { GNID, FNID, direction } = graph_node_relation
+                    return {
+                        NID,
+                        title,
+                        GNID,
+                        FNID,
+                        direction
+                    }
+                })
             ctx.body = {
-                ...graph.get({'plain': true}),
+                ...graph.get({ 'plain': true }),
                 nodes
             }
         }
     },
 
-
     getGraphNodeComments: { //获取comment 10
         method: 'get',
-        url: '/graph/node/:NID/comment/:from',
+        url: '/node/:NID/comment/:from',
         async handler(ctx, next) {
-            const {NID, from} = ctx.params
+            const { NID, from } = ctx.params
             const node = await GraphNode.findById(NID, {
                 include: {
                     model: GraphComment,
+                    include: {
+                        model: User
+                    },
                     offset: +from,
                     limit: 11,
                     order: [
@@ -118,7 +126,17 @@ const apis = {
                     ]
                 },
             })
-            const comments = node.graph_comments
+            if (!node) {
+                throw new BusinessError('node不存在')
+            }
+            const comments = (node.graph_comments || []).map((comment) => {
+                return {
+                    ...comment.get({ plain: true }),
+                    user: undefined,
+                    author: comment.user.name,
+                    industry: comment.user.industry
+                }
+            })
             ctx.body = {
                 hasMore: comments.length > 10,
                 comments: comments.slice(0, 10)
@@ -127,15 +145,28 @@ const apis = {
     },
     postGraphNodeComment: { //post comment
         method: 'post',
-        url: '/graph/node/:NID/comment',
+        url: '/node/:NID/comment',
         async handler(ctx, next) {
-            const {NID} = ctx.params
-            const comment = await GraphComment.create({
-                                                          ...ctx.request.body,
-                                                          NID,
-                                                          riqi: new Date(),
-                                                      })
-            ctx.body = comment
+            const { UID } = ctx.session.user
+            const { NID } = ctx.params
+            const { content } = ctx.request.body
+            const node = await GraphNode.findById(NID)
+            if (!node) {
+                throw new BusinessError('node不存在')
+            }
+            const comment = await node.createGraph_comment(
+                {
+                    UID,
+                    content,
+                    riqi: new Date(),
+                }
+            )
+            const user = await comment.getUser()
+            ctx.body = {
+                ...comment.get({ plain: true }),
+                author: user.name,
+                industry: user.industry
+            }
         }
     },
 
@@ -143,14 +174,14 @@ const apis = {
         method: 'get',
         url: '/indicator/',
         async handler(ctx, next) {
-            const {key} = ctx.request.query
+            const { key } = ctx.request.query
             const indicators = await Indicator.findAll({
-                                                           where: {
-                                                               title: {
-                                                                   '$like': `%${key}%`
-                                                               }
-                                                           }
-                                                       })
+                where: {
+                    title: {
+                        '$like': `%${key}%`
+                    }
+                }
+            })
             ctx.body = indicators
         }
     },
@@ -158,27 +189,31 @@ const apis = {
         method: 'get',
         url: '/graphNode/:GNID/indicators',
         async handler(ctx, next) {
-            const {GNID} = ctx.params
+            const { GNID } = ctx.params
             const gnode = await GraphNodeRelation.findById(GNID)
+            if (!gnode) {
+                throw new BusinessError('graph node relation不存在')
+            }
             // console.log(gnode.__proto__)
             const indicators = await gnode.getIndicators()
-                                          .map(indicator => indicator.get({'plain': true}))
-                                          .map((indicator) => {
-                                              return {
-                                                  ...indicator,
-                                                  graph_indicator: undefined,
-                                                  ...indicator.graph_indicator
-                                              }
-                                          })
+                .map(indicator => indicator.get({ 'plain': true }))
+                .map((indicator) => {
+                    return {
+                        ...indicator,
+                        graph_indicator: undefined,
+                        ...indicator.graph_indicator
+                    }
+                })
             ctx.body = indicators
         }
     },
 
     addNodeIndicators: {
         method: 'post',
-        url: '/graphNode/:GNID/indicator/:IID',
+        url: '/graphNode/:GNID/indicators/',
         async handler(ctx, next) {
-            const {GNID, IID} = ctx.params
+            const { GNID } = ctx.params
+            const { IID } = ctx.request.body
             const gnode = await GraphNodeRelation.findById(GNID)
             // console.log(gnode.__proto__)
             const indicator = await Indicator.findById(IID)
@@ -192,7 +227,7 @@ const apis = {
             console.log(graphIndicator[0])
             ctx.body = {
                 ...graphIndicator[0],
-                ...indicator.get({plain: true}),
+                ...indicator.get({ plain: true }),
             }
         }
     },
@@ -202,17 +237,17 @@ const apis = {
         method: 'put',
         url: '/graphIndicator/:ID',
         async handler(ctx, next) {
-            const {ID} = ctx.params
-            const {warn_type, upper_limit, lower_limit} = ctx.request.body
+            const { ID } = ctx.params
+            const { warn_type, upper_limit, lower_limit } = ctx.request.body
             const warning = await GraphIndicator.update({
-                                                            warn_type,
-                                                            upper_limit,
-                                                            lower_limit,
-                                                        }, {
-                                                            where: {
-                                                                ID,
-                                                            }
-                                                        })
+                warn_type,
+                upper_limit,
+                lower_limit,
+            }, {
+                where: {
+                    ID,
+                }
+            })
             ctx.body = warning
         }
     },
@@ -221,12 +256,12 @@ const apis = {
         method: 'delete',
         url: '/graphIndicator/:ID',
         async handler(ctx, next) {
-            const {ID} = ctx.params
+            const { ID } = ctx.params
             const indicators = await GraphIndicator.destroy({
-                                                                where: {
-                                                                    ID
-                                                                },
-                                                            })
+                where: {
+                    ID
+                },
+            })
             ctx.body = indicators
         }
     },
@@ -236,19 +271,19 @@ const apis = {
         method: 'post',
         url: '/graph/draft',
         async handler(ctx, next) {
-            const {entity, nodes, graph} = ctx.request.body
-            const {GID} = graph
+            const { entity, nodes, graph } = ctx.request.body
+            const { GID } = graph
 //todo
             const draftGraph = await Graph.findOrCreate({
-                                                            where: {
-                                                                //author: ? todo
-                                                                type: 2,
-                                                                entity
-                                                            }
-                                                        })
+                where: {
+                    //author: ? todo
+                    type: 2,
+                    entity
+                }
+            })
             const updateDraftGraph = await draftGraph.update({
-                                                                 riqi: new Date(),
-                                                             })
+                riqi: new Date(),
+            })
 
 
             // const updateGraph = await Graph.upsert({
@@ -262,10 +297,10 @@ const apis = {
             //                                        })
 
             const originNodes = new Set((await GraphNode.findAll({
-                                                                     where: {
-                                                                         GID
-                                                                     }
-                                                                 })).map((node) => node.NID))
+                where: {
+                    GID
+                }
+            })).map((node) => node.NID))
 
             const updateNodes = await Promise.all(nodes.map((node) => {
                 originNodes.delete(node.NID)
@@ -278,12 +313,12 @@ const apis = {
 
 
             await GraphNode.destroy({
-                                        where: {
-                                            NID: {
-                                                $in: [...originNodes]
-                                            }
-                                        }
-                                    })
+                where: {
+                    NID: {
+                        $in: [...originNodes]
+                    }
+                }
+            })
             ctx.body = updateNodes
         }
     },
@@ -292,24 +327,24 @@ const apis = {
         method: 'post',
         url: '/graph/',
         async handler(ctx, next) {
-            const {nodes, graph} = ctx.request.body
-            const {GID} = graph
+            const { nodes, graph } = ctx.request.body
+            const { GID } = graph
 //todo
             const updateGraph = await Graph.upsert({
-                                                       ...graph,
-                                                       riqi: new Date(),
-                                                       type: 2
-                                                   }, {
-                                                       where: {
-                                                           GID,
-                                                       }
-                                                   })
+                ...graph,
+                riqi: new Date(),
+                type: 2
+            }, {
+                where: {
+                    GID,
+                }
+            })
 
             const originNodes = new Set((await GraphNode.findAll({
-                                                                     where: {
-                                                                         GID
-                                                                     }
-                                                                 })).map((node) => node.NID))
+                where: {
+                    GID
+                }
+            })).map((node) => node.NID))
 
             const updateNodes = await Promise.all(nodes.map((node) => {
                 originNodes.delete(node.NID)
@@ -322,12 +357,12 @@ const apis = {
 
 
             await GraphNode.destroy({
-                                        where: {
-                                            NID: {
-                                                $in: [...originNodes]
-                                            }
-                                        }
-                                    })
+                where: {
+                    NID: {
+                        $in: [...originNodes]
+                    }
+                }
+            })
             ctx.body = updateNodes
         }
     },

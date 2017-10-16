@@ -5,11 +5,10 @@ const database = require('./db/index')
 const Sequelize = require('sequelize')
 
 const GraphComment = database.define('graph_comment', {
-    CID: { type: 'INTEGER', primaryKey: true,autoIncrement: true, },
+    CID: { type: 'INTEGER', primaryKey: true, autoIncrement: true, },
     NID: { type: Sequelize.STRING(20), allowNull: false },
     riqi: { type: 'DATETIME', allowNull: false },
-    author: { type: 'TEXT', allowNull: false },
-    institution: { type: 'TEXT', allowNull: false },
+    UID: { type: 'INTEGER', allowNull: false },
     content: { type: 'LONGTEXT', allowNull: false },
 })
 module.exports = GraphComment
