@@ -92,8 +92,6 @@ const apis = {
             ctx.body = res
         }
     },
-
-
     getGraphById: { //获取graph
         method: 'get',
         url: '/graph/:GID',
@@ -117,7 +115,6 @@ const apis = {
             }
         }
     },
-
     getGraphNodeComments: { //获取comment 10
         method: 'get',
         url: '/node/:NID/comment/:from',

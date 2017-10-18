@@ -24,7 +24,7 @@
     "koa2-history-api-fallback": "^0.0.5",
     "log4js": "^2.3.4",
     "mysql2": "^1.4.2",
-    "sequelize": "^4.8.4"
+    "sequelize": "4.15.0"
   },
   "devDependencies": {
     "nodemon": "^1.8.1"
