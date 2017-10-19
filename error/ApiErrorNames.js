@@ -6,10 +6,11 @@
  */
 const ApiErrorNames = {}
 
-ApiErrorNames.UNKNOW_ERROR = "unknowError"
-ApiErrorNames.USER_NOT_EXIST = "userNotExist"
-ApiErrorNames.USER_PASSWORD_WRONG = "userPasswordWrong"
-ApiErrorNames.USERNAME_EXIST = "usernameExist"
+ApiErrorNames.UNKNOW_ERROR = 'unknowError'
+ApiErrorNames.USER_NOT_EXIST = 'userNotExist'
+ApiErrorNames.USER_PASSWORD_WRONG = 'userPasswordWrong'
+ApiErrorNames.USERNAME_EXIST = 'usernameExist'
+ApiErrorNames.NOT_FOUND = 'resourceNotFound'
 /**
  * API错误名称对应的错误信息
  */
@@ -30,6 +31,10 @@ error_map.set(ApiErrorNames.USER_PASSWORD_WRONG, {
 error_map.set(ApiErrorNames.USERNAME_EXIST, {
     code: 103,
     message: '用户名已存在'
+})
+error_map.set(ApiErrorNames.NOT_FOUND, {
+    code: -2,
+    message: '资源未找到'
 })
 
 //根据错误名称获取错误信息
