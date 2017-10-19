@@ -60,9 +60,28 @@ const apis = {
         url: '/newsCategory/:CID/pageCount',
         async handler(ctx, next) {
             const { CID } = ctx.params
-            const { pageSize } = ctx.request.query
+            const { pageSize ,key} = ctx.request.query
+            const query={}
+            if (key){
+                query.where={
+                    $or: [
+                        {
+                            abstract: {
+                                '$like': `%${key}%`
+                            }
+                        },
+                        {
+                            title: {
+                                '$like': `%${key}%`
+                            }
+                        }
+                    ]
+                }
+            }
+
+
             if (CID == 0) {
-                const count = await News.count({})
+                const count = await News.count(query)
                 ctx.body = {
                     pageCount: Math.ceil(count / pageSize),
                 }
@@ -73,7 +92,7 @@ const apis = {
                 throw new ApiError(ApiErrorNames.NOT_FOUND)
             }
 
-            const count = await category.countNews()
+            const count = await category.countNews(query)
 
             ctx.body = {
                 pageCount: Math.ceil(count / pageSize),
@@ -86,7 +105,7 @@ const apis = {
         url: '/newsCategory/:CID/news',
         async handler(ctx, next) {
             const { CID } = ctx.params
-            const { pageNumber, pageSize } = ctx.request.query
+            const { pageNumber, pageSize,key } = ctx.request.query
             const query = {
                 attributes: { exclude: ['content'] },
                 order: [
@@ -95,10 +114,27 @@ const apis = {
                 offset: (pageNumber - 1) * pageSize,
                 limit: +pageSize,
             }
+
+            if (key){
+                query.where={
+                    $or: [
+                        {
+                            abstract: {
+                                '$like': `%${key}%`
+                            }
+                        },
+                        {
+                            title: {
+                                '$like': `%${key}%`
+                            }
+                        }
+                    ]
+                }
+            }
             if (CID == 0) {
-                const news = News.findAll(query)
+                const news = await News.findAll(query)
                 ctx.body = {
-                    news: [],
+                    news
                 }
                 return
             }
@@ -116,7 +152,6 @@ const apis = {
 
         }
     }
-
 }
 
 module.exports = Object.values(apis)
