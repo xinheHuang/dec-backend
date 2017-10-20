@@ -286,6 +286,20 @@ const apis = {
         }
     },
 
+    postUserInfo: { //修改userinfo
+        method: 'post',
+        url: '/userInfo',
+        async handler(ctx, next) {
+            const { UID } = ctx.session.user
+            const { userInfo } = ctx.request.body
+            await User.update(userInfo,{
+                where:{
+                    UID
+                }
+            })
+            ctx.body = {}
+        }
+    },
 
     getUserInfo: { //获取userinfo
         method: 'get',
@@ -293,7 +307,10 @@ const apis = {
         async handler(ctx, next) {
             const { UID } = ctx.session.user
             const user = await User.findById(UID)
-            ctx.body = user
+            ctx.body = {
+                ...user.get({plain:true}),
+                password:undefined
+            }
         }
     },
 

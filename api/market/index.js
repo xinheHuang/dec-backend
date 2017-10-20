@@ -165,9 +165,9 @@
             const articles = await  Article.sum('num_read', {
                 plain:false,
                 where: {
-                    riqi: {
-                        $gt: last7Day
-                    },
+                        riqi: {
+                            $gt: last7Day
+                        },
                     topic:{
                         $and: [{'$ne':''},{'$ne':null}]
                     }

@@ -1,27 +1,33 @@
 /**
  * Created by Xinhe on 2017-09-20.
  */
- const Sequelize = require('sequelize')
- const Calendar1 = require('../../models/calendar/calendar1')
- const Calendar2 = require('../../models/calendar/calendar2')
- 
- const apis = {
+const Sequelize = require('sequelize')
+const Calendar1 = require('../../models/calendar/calendar1')  //数据
+const Calendar2 = require('../../models/calendar/calendar2') //日程
+
+const apis = {
     getAllCalendar1: { //获取所有canlendar1
         method: 'get',
         url: '/calendar/calendar1',
         async handler(ctx, next) {
-            const calendar1s = await Calendar1.findAll()
-            ctx.body = calendar1s
+            ctx.body = await Calendar1.findAll()
         }
     },
     getAllCalendar2: { //获取所有canlendar1
         method: 'get',
         url: '/calendar/calendar2',
         async handler(ctx, next) {
-            const calendar2s = await Calendar2.findAll()
-            ctx.body = calendar2s
+            const { date } = ctx.request.query
+            if (!date) { //all calendar
+                ctx.body = await Calendar2.findAll()
+                return
+            }
+            ctx.body = await Calendar2.findAll({
+                where: Sequelize.where(Sequelize.fn('TO_DAYS', Sequelize.col('riqi_detail')), '=', Sequelize.fn('TO_DAYS', date)),
+            })
         }
-    }
+    },
+
 }
 
 module.exports = Object.values(apis)
