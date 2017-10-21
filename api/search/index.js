@@ -21,12 +21,16 @@ const IndicatorInfo = require('../../models/search/indicator_info')
 const IndicatorValue = require('../../models/search/indicator_value')
 
 const SearchList = require('../../models/search/search_list')
-
+const User=require('../../models/user/user')
 
 Graph.belongsToMany(GraphNode, {
     foreignKey: 'GID',
     through: GraphNodeRelation,
 
+})
+
+Graph.belongsTo(User,{
+    foreignKey: 'UID'
 })
 
 GraphNode.belongsToMany(Graph, {
@@ -105,6 +109,9 @@ const apis = {
                                              include: [
                                                  {
                                                      model: GraphNode
+                                                 },
+                                                 {
+                                                     model:User
                                                  }
                                              ]
                                          })
