@@ -80,6 +80,9 @@ const apis = {
             const {pageNumber, pageSize, key} = ctx.request.query
             const query = {
                 where: {
+                    // ID_report_image:{
+                    //     $gt:0
+                    // }
                 },
                 order: [
                     ['riqi', 'DESC'],
