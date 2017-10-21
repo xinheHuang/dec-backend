@@ -22,8 +22,18 @@ const apis = {
                 ctx.body = await Calendar2.findAll()
                 return
             }
+            const today=new Date(date);
+            const tomorrow=new Date(date);
+            tomorrow.setDate(today.getDate()+1);
+            console.log(tomorrow)
             ctx.body = await Calendar2.findAll({
-                where: Sequelize.where(Sequelize.fn('TO_DAYS', Sequelize.col('riqi_detail')), '=', Sequelize.fn('TO_DAYS', date)),
+                // where: Sequelize.where(Sequelize.fn('TO_DAYS', Sequelize.col('riqi_detail')), '=', Sequelize.fn('TO_DAYS', date)),
+                where:{
+                    riqi_detail:{
+                        $gte:today,
+                        $lte:tomorrow
+                    }
+                }
             })
         }
     },
