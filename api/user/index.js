@@ -184,7 +184,6 @@ const apis = {
             ctx.body = res
         }
     },
-
     postFinalGraph: {
         method: 'post',
         url: '/graph/final',
@@ -228,7 +227,6 @@ const apis = {
         }
 
     },
-
     postIndustryInterests: {
         method: 'post',
         url: '/interests/industry',
@@ -240,7 +238,6 @@ const apis = {
         }
 
     },
-
     deleteIndustryInterests: {
         method: 'delete',
         url: '/interests/industry',
@@ -251,7 +248,6 @@ const apis = {
             ctx.body = await user.removeBase_industry(CID)
         }
     },
-
     getStockInterests: {
         method: 'get',
         url: '/interests/stock',
@@ -262,7 +258,6 @@ const apis = {
         }
 
     },
-
     postStockInterests: {
         method: 'post',
         url: '/interests/stock',
@@ -272,9 +267,7 @@ const apis = {
             const user = await User.findById(UID)
             ctx.body = await user.addBase_stock(SID)
         }
-
     },
-
     deleteStockInterests: {
         method: 'delete',
         url: '/interests/stock',
@@ -285,7 +278,6 @@ const apis = {
             ctx.body = await user.removeBase_stock(SID)
         }
     },
-
     postUserInfo: { //修改userinfo
         method: 'post',
         url: '/userInfo',
@@ -300,7 +292,6 @@ const apis = {
             ctx.body = {}
         }
     },
-
     getUserInfo: { //获取userinfo
         method: 'get',
         url: '/userInfo',
@@ -313,7 +304,6 @@ const apis = {
             }
         }
     },
-
     logout: { //logout
         method: 'post',
         url: '/auth/logout',
@@ -322,7 +312,6 @@ const apis = {
             ctx.body = 'logout'
         }
     },
-
     login: { //登录
         method: 'post',
         url: '/auth/login',

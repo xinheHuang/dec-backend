@@ -149,7 +149,6 @@ const apis = {
             ctx.body = {
                 news
             }
-
         }
     }
 }
