@@ -1,11 +1,11 @@
 /**
  * Created by Xinhe on 2017-09-20.
  */
-const database = require('./db/index')
+const database = require('../db/index')
 
 const IndicatorInfo = database.define('indicator_info', {
     ID: { type: 'INTEGER', primaryKey: true },
-    ID_tong: { type: 'TEXT', allowNull: false },
+    ID_tong: { type:  Sequelize.STRING(25), allowNull: false },
     name: { type: 'TEXT', allowNull: false },
     frequency: { type: 'TEXT', allowNull: false },
     unit: { type: 'TEXT', allowNull: false },

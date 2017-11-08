@@ -1,11 +1,11 @@
 /**
  * Created by Xinhe on 2017-09-20.
  */
-const database = require('./db/index')
-
-const news = database.define('news', {
-    NID: { type: 'INTEGER', primaryKey: true, autoIncrement: true },
-    riqi: { type: 'DATE', allowNull: false },
+const database = require('../db/index')
+const Sequelize = require ('sequelize' )
+const NEWS = database.define('NEWS', {
+    news_id: { type: 'INTEGER', primaryKey: true, autoIncrement: true },
+    time: { type: Sequelize.BIGINT(20), allowNull: false },
     title: { type: 'TEXT', allowNull: false },
     abstract: { type: 'TEXT', allowNull: false },
     content: { type: 'LONGTEXT', allowNull: false },
@@ -19,4 +19,4 @@ const news = database.define('news', {
     author: { type: 'TEXT', allowNull: false },
     tags: { type: 'TEXT', allowNull: false },
 })
-module.exports = news
+module.exports = NEWS

@@ -1,12 +1,12 @@
 /**
  * Created by Xinhe on 2017-09-20.
  */
-const database = require('./db/index')
-
-const Calendar2 = database.define('calendar2', {
-    ID: { type: 'INTEGER', primaryKey: true },
+const database = require('../db/index')
+const Sequelize = require('sequelize')
+const CALENDAR_SCHEDULE = database.define('CALENDAR_SCHEDULE', {
+    calendar_schedule_id: { type: 'INTEGER', primaryKey: true },
     title: { type: 'TEXT', allowNull: false },
-    riqi_detail: { type: 'DATETIME', allowNull: false },
+    time: { type: Sequelize.BIGINT(20), allowNull: false },
     content: { type: 'TEXT', allowNull: false },
     author: { type: 'TEXT', allowNull: false },
     type: { type: 'INTEGER', allowNull: false },
@@ -16,4 +16,4 @@ const Calendar2 = database.define('calendar2', {
     guest: { type: 'TEXT', allowNull: false },
     contact: { type: 'TEXT', allowNull: false },
 })
-module.exports = Calendar2
+module.exports = CALENDAR_SCHEDULE
