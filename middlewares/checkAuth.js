@@ -4,7 +4,7 @@
 
 const authUrl = new RegExp('^/api/auth/')
 const checkAuth = async (ctx, next) => {
-    if (authUrl.test(ctx.originalUrl) || ctx.session.user) {
+    if (authUrl.test(ctx.originalUrl) || ctx.session.userId) {
         try {
             await next()
         } catch (error) {

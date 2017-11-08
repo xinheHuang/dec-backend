@@ -10,7 +10,7 @@ class NewsService {
         const query = {
             attributes: { exclude: ['content'] },
             order: [
-                ['riqi', 'DESC'],
+                ['time', 'DESC'],
             ],
             offset: (pageNumber - 1) * pageSize,
             limit: +pageSize,
@@ -33,17 +33,17 @@ class NewsService {
             }
         }
         if (id == 0) {
-            return await News.findAll(query)
+            return await NEWS.findAll(query)
         }
 
         const industry = await INDUSTRY.findById(id)
         if (!industry) {
             throw new ApiError(ApiErrorNames.NOT_FOUND)
         }
-        return await industry.getNews(query)
+        return await industry.getNEWS(query)
     }
 
-    static async getNewsTotalCountByIndustryId(id,pageSize,key){
+    static async getNewsTotalPageCountByIndustryId(id,pageSize,key){
         const query={}
         if (key){
             query.where={
@@ -69,8 +69,7 @@ class NewsService {
         if (!industry) {
             throw new ApiError(ApiErrorNames.NOT_FOUND)
         }
-
-        const count = await industry.countNews(query)
+        const count = await industry.countNEWS(query)
         return  Math.ceil(count / pageSize)
     }
 }

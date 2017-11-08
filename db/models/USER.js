@@ -29,10 +29,6 @@ const USER = database.define('USER', {
     broker: {
         type: Sequelize.STRING(45),
     },
-    industry_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-    },
     position: {
         type: Sequelize.STRING(45),
     },

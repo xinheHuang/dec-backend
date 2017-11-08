@@ -25,10 +25,6 @@ const REPORT = require('./models/REPORT')
 const REPORT_IMAGE = require('./models/REPORT_IMAGE')
 const SEARCH_LIST = require('./models/SEARCH_LIST')
 
-//industry - user
-INDUSTRY.hasMany(USER, { foreignKey: 'industry_id' })
-USER.belongsTo(INDUSTRY, { foreignKey: 'industry_id' })
-
 //indicator - indicator comment
 IndicatorInfo.hasMany(IndicatorComment, {
     foreignKey: 'ID_tong',

@@ -4,6 +4,7 @@
 const {USER} = require('../../../db')
 const ApiError = require('../../../error/ApiError')
 const ApiErrorNames = require('../../../error/ApiErrorNames')
+const crypto = require('../../../utils/cryptoUtil')
 
 class UserService {
     static async checkUserNamePassword(username, password) {
@@ -19,40 +20,47 @@ class UserService {
             throw new ApiError(ApiErrorNames.USER_PASSWORD_WRONG)
         }
         user.update({
-                        last_login_time:  new Date().getTime()
+                        last_login_time: new Date().getTime()
                     })
         return user.user_id
     }
 
-    static async createUser(username, password, position, industry_id, name, broker) {
+    static async createUser(username, password, position, name, broker) {
         const time = new Date()
         let [user, created] = await USER.findOrCreate({
-                                                            where: {
-                                                                username
-                                                            },
-                                                            defaults: {
-                                                                //todo need fix
-                                                                mobile: username,
-                                                                position,
-                                                                industry_id,
-                                                                name,
-                                                                broker,
-                                                                password: crypto.getSha1(password),
-                                                                register_time: time.getTime(),
-                                                                last_login_time: time.getTime()
-                                                            }
-                                                        })
+                                                          where: {
+                                                              username
+                                                          },
+                                                          defaults: {
+                                                              //todo need fix
+                                                              mobile: username,
+                                                              position,
+                                                              name,
+                                                              broker,
+                                                              password: crypto.getSha1(password),
+                                                              register_time: time.getTime(),
+                                                              last_login_time: time.getTime()
+                                                          }
+                                                      })
         if (!created) {
             throw new ApiError(ApiErrorNames.USERNAME_EXIST)
         }
         if (!user.userId) {
             user = await USER.findOne({
-                                                where: {
-                                                    username,
-                                                }
-                                            })
+                                          where: {
+                                              username,
+                                          }
+                                      })
         }
         return user.user_id
+    }
+
+    static async getUserInfo(userId) {
+        const user = await USER.findById(userId)
+        return {
+            ...user.get({plain:true}),
+            password:undefined
+        }
     }
 }
 

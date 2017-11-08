@@ -2,7 +2,7 @@
  * Created by Xinhe on 2017-09-20.
  * 数据库实例初始化
  */
-const config = require('../conf/dbConfig')
+const config = require('../conf/dbConfig_prod')
 const Sequelize = require('sequelize')
 const {  username, password, host, port } = config
 const sequelize = new Sequelize('IFC', username, password, {

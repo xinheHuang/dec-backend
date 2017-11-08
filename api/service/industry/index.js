@@ -18,7 +18,7 @@ class IndustryService {
             return industries
                 .filter((industry) => industry.parent_industry_id === ID)
                 .map((industry) => ({
-                    ...industry,
+                    ...industry.get({'plain':true}),
                     subs: find(industry.industry_id)
                 }))
         }
