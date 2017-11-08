@@ -1,7 +1,7 @@
 /**
  * Created by Xinhe on 2017-09-20.
  */
-const database = require('../db/index')
+const database = require('../database')
 const Sequelize = require('sequelize')
 const CALENDAR_SCHEDULE = database.define('CALENDAR_SCHEDULE', {
     calendar_schedule_id: { type: 'INTEGER', primaryKey: true },

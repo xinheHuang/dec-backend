@@ -1,7 +1,7 @@
 /**
  * Created by Xinhe on 2017-09-20.
  */
-const database = require('../db/index')
+const database = require('../database')
 const Sequelize = require('sequelize')
 
 const SEARCH_LIST = database.define('SEARCH_LIST', {

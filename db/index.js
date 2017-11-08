@@ -164,8 +164,8 @@ USER.hasMany(NODE_COMMENT, { foreignKey: 'user_id' })
 NODE_COMMENT.belongsTo(USER, { foreignKey: 'user_id' })
 
 //node_comment - node
-NODE.hasMany(NODE_COMMENT, { foreignKey: 'node_id' })
-NODE_COMMENT.belongsTo(NODE, { foreignKey: 'node_id' })
+GRAPH_NODE.hasMany(NODE_COMMENT, { foreignKey: 'node_id' })
+NODE_COMMENT.belongsTo(GRAPH_NODE, { foreignKey: 'node_id' })
 
 //report image - report
 REPORT.hasMany(REPORT_IMAGE, { foreignKey: 'report_image_id' })
