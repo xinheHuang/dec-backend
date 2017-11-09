@@ -4,7 +4,7 @@
 const database = require('../database')
 const Sequelize = require('sequelize')
 const STOCK = database.define('STOCK', {
-    ID: { type: 'INTEGER', primaryKey: true,autoIncrement: true, },
+    stock_id: { type: 'INTEGER', primaryKey: true,autoIncrement: true, },
     code: { type: Sequelize.STRING(45), allowNull: false },
     name: { type: Sequelize.STRING(45), allowNull: false },
     industry_id: { type: 'INTEGER', allowNull: false },

@@ -8,7 +8,6 @@ const CALENDAR_SCHEDULE = database.define('CALENDAR_SCHEDULE', {
     title: { type: 'TEXT', allowNull: false },
     time: { type: Sequelize.BIGINT(20), allowNull: false },
     content: { type: 'TEXT', allowNull: false },
-    author: { type: 'TEXT', allowNull: false },
     type: { type: 'INTEGER', allowNull: false },
     dial: { type: 'TEXT', allowNull: false },
     password: { type: 'TEXT', allowNull: false },

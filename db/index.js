@@ -15,7 +15,10 @@ const NEWS_INDUSTRY_RELATION = require('./models/NEWS_INDUSTRY_RELATION')
 const ARTICLE = require('./models/ARTICLE')
 const ARTICLE_RECOMMEND = require('./models/ARTICLE_RECOMMEND')
 const ARTICLE_CONCLUSION = require('./models/ARTICLE_CONCLUSION')
+
 const CALENDAR_STATISTIC = require('./models/CALENDAR_STATISTIC')
+const CALENDAR_SCHEDULE = require ('./models/CALENDAR_SCHEDULE')
+
 const GRAPH = require('./models/GRAPH')
 const GRAPH_NODE = require('./models/GRAPH_NODE')
 const GRAPH_NODE_RELATION = require('./models/GRAPH_NODE_RELATION')
@@ -67,6 +70,12 @@ INDUSTRY.belongsToMany(USER, {
     otherKey: 'user_id'
 })
 
+// USER_INTEREST_INDUSTRY.belongsTo(INDUSTRY,{
+//     foreignKey: 'industry_id'
+// })
+//
+// INDUSTRY.hasMany(USER_INTEREST_INDUSTRY, { foreignKey: 'industry_id' })
+
 //user interest stock
 USER.belongsToMany(STOCK, {
     foreignKey: 'user_id',
@@ -80,6 +89,12 @@ STOCK.belongsToMany(USER, {
     foreignKey: 'stock_id',
     otherKey: 'user_id'
 })
+
+// USER_INTEREST_STOCK.belongsTo(STOCK,{
+//     foreignKey: 'stock_id'
+// })
+//
+// STOCK.hasMany(USER_INTEREST_STOCK, { foreignKey: 'stock_id' })
 
 //news industry relation
 NEWS.belongsToMany(INDUSTRY, {
@@ -111,9 +126,6 @@ ARTICLE_RECOMMEND.belongsTo(ARTICLE, { foreignKey: 'article_id' })
 STOCK.hasMany(ARTICLE_RECOMMEND, { foreignKey: 'stock_id' })
 ARTICLE_RECOMMEND.belongsTo(STOCK, { foreignKey: 'stock_id' })
 
-//article recommend - industry
-INDUSTRY.hasMany(ARTICLE_RECOMMEND, { foreignKey: 'industry_id' })
-ARTICLE_RECOMMEND.belongsTo(INDUSTRY, { foreignKey: 'industry_id' })
 
 //article conclusion - article
 ARTICLE.hasMany(ARTICLE_CONCLUSION, { foreignKey: 'article_id' })
@@ -185,4 +197,19 @@ module.exports = {
     USER,
     INDUSTRY,
     NEWS,
+    USER_INTEREST_INDUSTRY,
+    STOCK,
+    CALENDAR_STATISTIC,
+    CALENDAR_SCHEDULE,
+    SEARCH_LIST,
+    GRAPH_NODE,
+    IndicatorComment,
+    IndicatorInfo,
+    IndicatorValue,
+    REPORT_IMAGE,
+    REPORT,
+    ANALYST,
+    ARTICLE,
+    ARTICLE_CONCLUSION,
+    ARTICLE_RECOMMEND,
 }

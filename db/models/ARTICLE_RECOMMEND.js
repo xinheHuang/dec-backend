@@ -7,7 +7,6 @@ const ARTICLE_RECOMMEND = database.define('ARTICLE_RECOMMEND', {
     recommend_id: { type: 'INTEGER', primaryKey: true },
     article_id: { type: 'INTEGER', allowNull: false },
     stock_id: { type: 'INTEGER', allowNull: false },
-    industry_id: { type: 'INTEGER', allowNull: false },
     time: { type: Sequelize.BIGINT(20), allowNull: false },
 })
 module.exports = ARTICLE_RECOMMEND

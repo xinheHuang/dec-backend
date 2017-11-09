@@ -10,7 +10,9 @@ apis.forEach((request) => {
         return
     }
 
-    router[method].call(router, `${baseUrl}${request.url}`,request.handler)
+    router[method].call(router, `${baseUrl}${request.url}`,async (ctx,next)=>{
+        await request.handler(ctx,ctx.session.userId)
+    })
 })
 
 module.exports = router
