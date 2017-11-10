@@ -3,7 +3,6 @@
  */
 const UserService = require('../../service/user')
 
-
 module.exports = Object.values({
     login: { //登录
         method: 'post',

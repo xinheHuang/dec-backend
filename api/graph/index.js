@@ -224,7 +224,7 @@ const apis = {
             const gnode = await GraphNodeRelation.findById(GNID)
             // console.log(gnode.__proto__)
             const indicator = await Indicator.findById(IID)
-            const graphIndicator = await gnode.addIndicator(indicator, {
+            const m = await gnode.addIndicator(indicator, {
                 through: {
                     warn_type: 0,
                     upper_limit: 0,

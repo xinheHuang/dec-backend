@@ -159,13 +159,25 @@ GRAPH_NODE.belongsToMany(GRAPH, {
     foreignKey: 'node_id'
 })
 
-//node_indicator - indicator
+//node_indicator - graph_node_relation
 GRAPH_NODE_RELATION.hasMany(GRAPH_NODE_INDICATOR, { foreignKey: 'graph_node_relation_id' })
 GRAPH_NODE_INDICATOR.belongsTo(GRAPH_NODE_RELATION, { foreignKey: 'graph_node_relation_id' })
 
-//node_indicator - graph_node_relation
+//node_indicator - IndicatorInfo
 IndicatorInfo.hasMany(GRAPH_NODE_INDICATOR, { foreignKey: 'indicator_id' })
 GRAPH_NODE_INDICATOR.belongsTo(IndicatorInfo, { foreignKey: 'indicator_id' })
+
+//graph_node_relation - IndicatorInfo
+GRAPH_NODE_RELATION.belongsToMany(IndicatorInfo, {
+    foreignKey: 'graph_node_relation_id',
+    through: GRAPH_NODE_INDICATOR,
+
+})
+
+IndicatorInfo.belongsToMany(GRAPH_NODE_RELATION, {
+    through: GRAPH_NODE_INDICATOR,
+    foreignKey: 'indicator_id'
+})
 
 //node_comment - user
 USER.hasMany(NODE_COMMENT, { foreignKey: 'user_id' })
@@ -202,7 +214,11 @@ module.exports = {
     CALENDAR_STATISTIC,
     CALENDAR_SCHEDULE,
     SEARCH_LIST,
+    GRAPH,
     GRAPH_NODE,
+    GRAPH_NODE_RELATION,
+    GRAPH_NODE_INDICATOR,
+    NODE_COMMENT,
     IndicatorComment,
     IndicatorInfo,
     IndicatorValue,

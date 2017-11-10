@@ -4,12 +4,13 @@
 const user = require('./controller/user')
 const industry = require('./controller/industry')
 const calendar = require('./controller/calendar')
-
+const graph = require('./controller/graph')
 
 const apis = [
     ...user,
     ...industry,
-    ...calendar
+    ...calendar,
+    ...graph
 ]
 
 module.exports = apis

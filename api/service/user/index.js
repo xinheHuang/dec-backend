@@ -5,6 +5,7 @@ const { USER } = require('../../../db')
 const ApiError = require('../../../error/ApiError')
 const ApiErrorNames = require('../../../error/ApiErrorNames')
 const crypto = require('../../../utils/cryptoUtil')
+const Converter = require ('../../converter')
 
 class UserService {
     static async getUserInstance(userId) {
@@ -64,10 +65,7 @@ class UserService {
 
     static async getUserInfo(userId) {
         const user = await UserService.getUserInstance(userId)
-        return {
-            ...user.get({ plain: true }),
-            password: undefined
-        }
+        return Converter.UserConverter(user)
     }
 
     static async modifyUserInfo(userId, userInfo) {

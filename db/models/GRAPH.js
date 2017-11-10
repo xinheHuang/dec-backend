@@ -11,8 +11,12 @@ const GRAPH = database.define('GRAPH', {
     type: { type: 'INTEGER', allowNull: false },
     name: { type: 'TEXT', allowNull: false },
 })
-module.exports = GRAPH
-module.exports.GraphTypes={
+GRAPH.GraphTypes={
     DRAFT:2,
     FINAL:1,
 }
+module.exports = GRAPH
+// module.exports.GraphTypes={
+//     DRAFT:2,
+//     FINAL:1,
+// }
