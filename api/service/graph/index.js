@@ -1,7 +1,7 @@
 /**
  * Created by Xinhe on 2017-09-20.
  */
-const { GRAPH_NODE_RELATION, GRAPH_NODE_INDICATOR, GRAPH_NODE, GRAPH, NODE_COMMENT, USER, IndicatorInfo } = require('../../../db')
+const {GRAPH_NODE_RELATION, GRAPH_NODE_INDICATOR, GRAPH_NODE, GRAPH, NODE_COMMENT, USER, IndicatorInfo} = require('../../../db')
 const ApiError = require('../../../error/ApiError')
 const ApiErrorNames = require('../../../error/ApiErrorNames')
 const BusinessError = require('../../../error/BusinessError')
@@ -12,10 +12,10 @@ const Converter = require('../../converter')
 class GraphService {
     static async getGraphById(id) {
         const graph = await  GRAPH.findById(id, {
-                include: {
-                    model: GRAPH_NODE
-                }
-            }
+                                                include: {
+                                                    model: GRAPH_NODE
+                                                }
+                                            }
         )
         if (!graph) {
             throw new BusinessError('graph不存在')
@@ -25,22 +25,22 @@ class GraphService {
 
     static async getNodeCommentsByNodeId(nodeId, pageNumber, pageSize,) {
         const comments = ( await NODE_COMMENT.findAll({
-            where: {
-                node_id: nodeId
-            },
-            include: {
-                model: USER
-            },
-            offset: (pageNumber - 1) * pageSize,
-            limit: (+pageSize) + 1,
-            order: [
-                ['time', 'DESC'],
-            ]
-        })) || []
+                                                          where: {
+                                                              node_id: nodeId
+                                                          },
+                                                          include: {
+                                                              model: USER
+                                                          },
+                                                          offset: (pageNumber - 1) * pageSize,
+                                                          limit: (+pageSize) + 1,
+                                                          order: [
+                                                              ['time', 'DESC'],
+                                                          ]
+                                                      })) || []
         return {
             hasMore: comments.length > +pageSize,
             comments: comments.slice(0, +pageSize)
-                .map(Converter.NodeCommentConverter)
+                              .map(Converter.NodeCommentConverter)
         }
     }
 
@@ -64,18 +64,18 @@ class GraphService {
 
 
     static async searchIndicatorByKeyWord(key, pageNumber, pageSize,) {
-        const { count, rows } = await IndicatorInfo.findAndCountAll({
-            where: {
-                name: {
-                    '$like': `%${key}%`
-                }
-            },
-            offset: (pageNumber - 1) * pageSize,
-            limit: +pageSize,
-            order: [
-                ['ID', 'ASC'],
-            ]
-        })
+        const {count, rows} = await IndicatorInfo.findAndCountAll({
+                                                                      where: {
+                                                                          name: {
+                                                                              '$like': `%${key}%`
+                                                                          }
+                                                                      },
+                                                                      offset: (pageNumber - 1) * pageSize,
+                                                                      limit: +pageSize,
+                                                                      order: [
+                                                                          ['ID', 'ASC'],
+                                                                      ]
+                                                                  })
         return {
             total: Math.ceil(count / pageSize),
             indicators: rows
@@ -87,8 +87,8 @@ class GraphService {
         if (!graphNode) {
             throw new BusinessError('graph node relation不存在')
         }
-        return (await graphNode.getIndicator_infos()).map(({ GRAPH_NODE_INDICATOR, name, ID }) => {
-            const { id, upper_limit, warn_type, lower_limit } = GRAPH_NODE_INDICATOR
+        return (await graphNode.getIndicator_infos()).map(({GRAPH_NODE_INDICATOR, name, ID}) => {
+            const {id, upper_limit, warn_type, lower_limit} = GRAPH_NODE_INDICATOR
             return {
                 indicatorId: ID,
                 name,
@@ -113,8 +113,8 @@ class GraphService {
             }
         })
         const graphIndicator = graphIndicators[0]
-        const { name, ID } = await graphIndicator.getIndicator_info()
-        const { upper_limit, warn_type, lower_limit, id } = graphIndicator
+        const {name, ID} = await graphIndicator.getIndicator_info()
+        const {upper_limit, warn_type, lower_limit, id} = graphIndicator
         return {
             indicatorId: ID,
             name,
@@ -135,23 +135,23 @@ class GraphService {
 
     static async deleteNodeIndicator(graphNodeIndicatorId) {
         await GRAPH_NODE_INDICATOR.destroy({
-            where: {
-                id: graphNodeIndicatorId
-            }
-        })
+                                               where: {
+                                                   id: graphNodeIndicatorId
+                                               }
+                                           })
     }
 
     //user
 
     static async getGraphsByUserId(userId) {
         return (await GRAPH.findAll({
-            where: {
-                user_id: userId
-            },
-            include: {
-                model: GRAPH_NODE
-            }
-        })).map((graph) => (Converter.GraphConverter(graph)))
+                                        where: {
+                                            user_id: userId
+                                        },
+                                        include: {
+                                            model: GRAPH_NODE
+                                        }
+                                    })).map((graph) => (Converter.GraphConverter(graph)))
     }
 
     static async getDraftGraphByUserIdAndEntity(userId, entity,) {
@@ -191,31 +191,74 @@ class GraphService {
         return graph
     }
 
+    static async postDraftGraph(userId, entity, nodes) {
+        let [graph, created] = await GRAPH.findOrCreate(
+            {
+                where: {
+                    user_id: userId,
+                    entity,
+                    type: GraphTypes.DRAFT
+                },
+                include: {
+                    model: GRAPH_NODE,
+                },
+                defaults: {
+                    time: new Date().getTime(),
+                    name: '草稿版本'
+                }
+            }
+        )
+
+        //todo
+        await Promise.all(nodes.map(({title, nodeId}) => GRAPH_NODE.upsert({title, node_id: nodeId}, {
+            where: {
+                node_id: nodeId
+            }
+        })))
+
+        await Promise.all([
+                              !created ? graph.update({
+                                                          time: new Date().getTime(),
+                                                      }) : null,
+                              graph.setGRAPH_NODEs([])])
+                     .then(() =>
+                               Promise.all(nodes.map(({nodeId, parentNodeId, direction}) =>
+                                                         graph.addGRAPH_NODE(nodeId, {
+                                                             through: {
+                                                                 parent_node_id: parentNodeId,
+                                                                 direction
+                                                             }
+                                                         }))))
+
+
+    }
+
     static async postFinalGraph(userId, name, entity, nodes) {
         const graph = await GRAPH.create({
-            user_id: userId,
-            name,
-            entity,
-            time: new Date().getTime(),
-            type: GraphTypes.FINAL,
-        })
+                                             user_id: userId,
+                                             name,
+                                             entity,
+                                             time: new Date().getTime(),
+                                             type: GraphTypes.FINAL,
+                                         })
 
-        await Promise.all(nodes.reduce((prev, { node_id, parent_node_id, direction }) => {
+        await Promise.all(nodes.reduce((prev, node) => {
+            const {nodeId, parentNodeId, direction,title} = node
             return [
                 ...prev,
-                GRAPH_NODE.upsert(node, {
+                GRAPH_NODE.upsert({title, node_id: nodeId}, {
                     where: {
-                        node_id
+                        node_id: nodeId
                     }
                 }),
-                graph.addGRAPH_NODE(node_id, {
+                graph.addGRAPH_NODE(nodeId, {
                     through: {
-                        parent_node_id,
+                        parent_node_id: parentNodeId,
                         direction
                     }
                 })
             ]
-        }), [])
+        }, []))
 
     }
 

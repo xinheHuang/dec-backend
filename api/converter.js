@@ -26,7 +26,7 @@ class Converter {
             nodes: graph.GRAPH_NODEs ? graph.GRAPH_NODEs.map(({ node_id, title, GRAPH_NODE_RELATION }) => ({
                 nodeId:node_id,
                 title,
-                parent_node_id: GRAPH_NODE_RELATION.parent_node_id,
+                parentNodeId: GRAPH_NODE_RELATION.parent_node_id,
                 direction: GRAPH_NODE_RELATION.direction,
                 graphNodeId: GRAPH_NODE_RELATION.id
             })) : undefined

@@ -17,7 +17,7 @@ module.exports = Object.values(
             url: '/calendar/schedule',
             async handler(ctx) {
                 const { time } = ctx.request.query
-                ctx.body= await CalendarService.getAllScheduleCalendarByTime(time)
+                ctx.body= await CalendarService.getAllScheduleCalendarByTime(+time)
             }
         },
     })

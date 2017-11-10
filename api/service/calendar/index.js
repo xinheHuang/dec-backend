@@ -17,8 +17,8 @@ class CalendarService {
         return await CALENDAR_SCHEDULE.findAll({
             where: {
                 time: {
-                    $gte: today,
-                    $lte: tomorrow
+                    $gte: today.getTime(),
+                    $lte: tomorrow.getTime()
                 }
             }
         })
