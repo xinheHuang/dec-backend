@@ -188,8 +188,8 @@ GRAPH_NODE.hasMany(NODE_COMMENT, { foreignKey: 'node_id' })
 NODE_COMMENT.belongsTo(GRAPH_NODE, { foreignKey: 'node_id' })
 
 //report image - report
-REPORT.hasMany(REPORT_IMAGE, { foreignKey: 'report_image_id' })
-REPORT_IMAGE.belongsTo(REPORT, { foreignKey: 'report_image_id' })
+REPORT.hasMany(REPORT_IMAGE, { foreignKey: 'report_id' })
+REPORT_IMAGE.belongsTo(REPORT, { foreignKey: 'report_id' })
 
 //search list
 SEARCH_LIST.belongsTo(NEWS, {
