@@ -5,6 +5,16 @@ const IndustryService = require('../../service/industry')
 const NewsService = require('../../service/news')
 const AnalystService = require('../../service/analyst')
 const ArticleService = require('../../service/article')
+
+const getLast7DayTime=()=>{
+    const last7Day = new Date()
+    last7Day.setHours(0, 0, 0, 0)
+    last7Day.setDate(last7Day.getDate() - 7) //七天之内 
+    // return last7Day.getTime();
+    //todo 用途测试
+    return 0;
+}
+
 module.exports = Object.values(
     {
         getIndustries: {
@@ -97,19 +107,15 @@ module.exports = Object.values(
             method: 'get',
             url: '/articles',
             async handler(ctx,) {
-                const last7Day = new Date()
-                last7Day.setDate(new Date().getDate() - 7) //七天之内
-                // todo
-                ctx.body = await ArticleService.getArticlesAfterTime(last7Day.getTime())
-                //  ctx.body = await ArticleService.getArticlesAfterTime(0)
+                ctx.body = await ArticleService.getArticlesAfterTime(getLast7DayTime())
             }
         },
-        getArticleById: { //获取文章
+        getArticleById: { //获取文章by Id
             method: 'get',
             url: '/article/:id',
             async handler(ctx,) {
                 const { id } = ctx.params
-                ctx.body = ArticleService.getArticleById(id)
+                ctx.body = await ArticleService.getArticleById(id)
             }
         },
         getArticleRecommendsByIndustry:{  //获取行业下的文章
@@ -133,10 +139,7 @@ module.exports = Object.values(
             method: 'get',
             url: '/stock/articles/readNumbers',
             async handler(ctx, ) {
-                const last7Day = new Date()
-                last7Day.setDate(new Date().getDate() - 7) //七天之内
-                // ctx.body = await ArticleService.getArticleReadNumbersByStock(last7Day.getTime())
-                ctx.body = await ArticleService.getArticleReadNumbersByStock(0)
+                ctx.body = await ArticleService.getArticleReadNumbersByStock(getLast7DayTime())
             }
         }
 

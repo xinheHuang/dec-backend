@@ -4,18 +4,19 @@
 const { ARTICLE, ARTICLE_CONCLUSION, STOCK, ARTICLE_RECOMMEND } = require('../../../db')
 const ApiError = require('../../../error/ApiError')
 const ApiErrorNames = require('../../../error/ApiErrorNames')
-
+const Converter = require('../../converter')
 const formatContent = (s) => s.split(new RegExp('[\r\n]'))
     .filter(d => d)
 
 class ArticleService {
 
     static async getArticleById(articleId) {
-        return await ARTICLE.findById(articleId)
+        return Converter.ArticleConverter(await ARTICLE.findById(articleId))
     }
 
     static async getArticlesAfterTime(time) {
         return await ARTICLE.findAll({
+            attributes: { exclude: ['content'] },
             where: {
                 time: {
                     $gt: time
@@ -29,6 +30,7 @@ class ArticleService {
 
     static async getArticleRecommendsByIndustryId(id) {
         return await ARTICLE.findAll({
+            attributes: { exclude: ['content'] },
             where: {
                 industry_id: id
             },
@@ -46,11 +48,13 @@ class ArticleService {
 
     static async getStockArticles() {
         return await ARTICLE.findAll({
+            attributes: { exclude: ['content'] },
             include: {
                 model: STOCK,
                 required: true
             }
         })
+            .map((article) => Converter.ArticleConverter(article))
     }
 
     static async getNewestKeyConclusions() {
@@ -73,27 +77,34 @@ class ArticleService {
         return formatContent(conclusion.hotspot_conclusion)
     }
 
-    static async getArticleReadNumbersByStock(time) {
+    static async getArticleReadNumbersByStock(time = 0,) {
         return (await  ARTICLE.sum('num_read', {
-            plain:false,
+            plain: false,
             where: {
                 time: {
                     $gt: time
                 },
             },
             include: {
-                required:true,
+                required: true,
                 model: STOCK,
             },
             group: 'STOCK.stock_id'
-        })).map((stock)=> ({
-            sum: stock.sum,
-            stockId:stock['STOCK.stock_id'],
-            code:stock['STOCK.code'],
-            name:stock['STOCK.name'],
-            industryId:stock['STOCK.industry_id'],
-            startTime:stock['STOCK.start_time'],
-        }))
+        })).map((articles) => {
+            const { sum } = articles
+            const STOCK = Object.keys(articles)
+                .filter((key) => key.indexOf('STOCK.') === 0)
+                .reduce((prev, key) => {
+                    return {
+                        ...prev,
+                        [key.substr(key.indexOf('.') + 1)]: articles[key]
+                    }
+                }, {})
+            return ({
+                sum: sum,
+                stock: Converter.StockConverter(STOCK)
+            })
+        })
     }
 }
 
