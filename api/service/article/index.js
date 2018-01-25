@@ -1,7 +1,7 @@
 /**
  * Created by Xinhe on 2017-09-20.
  */
-const { ARTICLE, ARTICLE_CONCLUSION, STOCK, ARTICLE_RECOMMEND } = require('../../../db')
+const { ARTICLE, ARTICLE_CONCLUSION, STOCK, ARTICLE_RECOMMEND,INDUSTRY } = require('../../../db')
 const ApiError = require('../../../error/ApiError')
 const ApiErrorNames = require('../../../error/ApiErrorNames')
 const Converter = require('../../converter')
@@ -105,6 +105,25 @@ class ArticleService {
                 stock: Converter.StockConverter(STOCK)
             })
         })
+    }
+    
+    static async getArticleReadNumberByFatherIndustry(industryId,time=0){
+        return (await  ARTICLE.sum('num_read', {
+            plain: false,
+            where: {
+                time: {
+                    $gt: time
+                },
+            },
+            include: {
+                required: true,
+                model: INDUSTRY,
+                where:{
+                    parent_industry_id:industryId
+                }
+            },
+            group: 'INDUSTRY.industry_id'
+        }))
     }
 }
 

@@ -135,11 +135,20 @@ module.exports = Object.values(
             }
         },
 
+// todo time by input
         getStockArticleReadNumbers:{
             method: 'get',
             url: '/stock/articles/readNumbers',
             async handler(ctx, ) {
                 ctx.body = await ArticleService.getArticleReadNumbersByStock(getLast7DayTime())
+            }
+        },
+        getArticleReadNumbersByIndustry:{
+            method: 'get',
+            url: '/industry/:id/articles/readNumbers',
+            async handler(ctx, ) {
+                const {id} = ctx.params
+                ctx.body = await ArticleService.getArticleReadNumberByFatherIndustry(id,getLast7DayTime())
             }
         }
 
